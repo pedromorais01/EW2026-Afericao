@@ -13,12 +13,12 @@ block content
       h2 Registos de Reparação:
       table.w3-table-all
         tr
-          th ID
-          th Data
-          th Nome
-          th Matrícula
-          th Marca
-          th Intervenções
+          th _id
+          th data
+          th nome
+          th matrícula
+          th marca
+          th número de intervenções
         each r in list
           tr
             td
@@ -27,7 +27,7 @@ block content
             td= r.nome
             td= r.viatura.matricula
             td
-              a(href="/marcas/" + r.viatura.marca)= r.viatura.marca
+              a(href="/" + r.viatura.marca)= r.viatura.marca
             td= r.nr_intervencoes
             
     footer.w3-container.w3-blue

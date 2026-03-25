@@ -13,7 +13,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
     axios.get(api_url)
         .then(response => {
-            // Ordenar por data (descendente - mais recente primeiro)
             const sortedList = response.data.sort((a, b) => b.data.localeCompare(a.data));
             res.render('index', { list: sortedList, date: new Date().toISOString() });
         })
@@ -22,27 +21,31 @@ app.get('/', (req, res) => {
         });
 });
 
-app.get('/marcas/:marca', (req, res) => {
-    axios.get(api_url + "?marca=" + req.params.marca)
-        .then(response => {
-            const list = response.data;
-            // Extrair modelos únicos daquela marca
-            const models = [...new Set(list.map(r => r.viatura.modelo))].sort();
-            res.render('brand', { list: list, brand: req.params.marca, models: models });
-        })
-        .catch(err => {
-            res.render('error', { error: err });
-        });
-});
-
-app.get('/:id', (req, res) => {
-    axios.get(api_url + "/" + req.params.id)
-        .then(response => {
-            res.render('record', { r: response.data });
-        })
-        .catch(err => {
-            res.render('error', { error: err });
-        });
+// Lógica para tratar /:id e /:marca na mesma rota base como pedido no PDF
+app.get('/:idOrBrand', (req, res) => {
+    const p = req.params.idOrBrand;
+    
+    // Se for numérico (ID 1, 2, 3...), tratamos como Registo
+    if (/^\d+$/.test(p)) {
+        axios.get(api_url + "/" + p)
+            .then(response => {
+                if (response.data) {
+                    res.render('record', { r: response.data });
+                } else {
+                    res.render('error', { error: { stack: "Registo não encontrado" } });
+                }
+            })
+            .catch(err => res.render('error', { error: err }));
+    } else {
+        // Caso contrário, tratamos como Marca
+        axios.get(api_url + "?marca=" + p)
+            .then(response => {
+                const list = response.data;
+                const models = [...new Set(list.map(r => r.viatura.modelo))].sort();
+                res.render('brand', { list: list, brand: p, models: models });
+            })
+            .catch(err => res.render('error', { error: err }));
+    }
 });
 
 const PORT = 16026;
