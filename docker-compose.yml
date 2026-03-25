@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - repair_network
+
+  api_dados:
+    build:
+      context: ./ex1/api_dados
+    ports:
+      - "16025:16025"
+    environment:
+      - MONGODB_URL=mongodb://mongodb:27017/autoRepair
+    depends_on:
+      - mongodb
+    networks:
+      - repair_network
+
+  interface:
+    build:
+      context: ./ex2/interface
+    ports:
+      - "16026:16026"
+    environment:
+      - API_URL=http://api_dados:16025/repairs
+    depends_on:
+      - api_dados
+    networks:
+      - repair_network
+
+networks:
+  repair_network:
+    driver: bridge
+
+volumes:
+  mongo_data:

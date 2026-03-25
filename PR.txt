@@ -1,0 +1,64 @@
+# Exercício 1: Reparações (API de dados)
+
+## Persistência de Dados e Setup
+Para a persistência de dados, foi utilizado o MongoDB.
+O dataset original `dataset_reparacoes.json` foi transformado utilizando o script `ex1/transform.py` para:
+1. Adicionar um campo `_id` único para cada registo de reparação.
+2. Converter a estrutura de objeto com chave `reparacoes` para um array de objetos, facilitando a importação para o MongoDB.
+
+O ficheiro resultante `ex1/reparacoes_transformed.json` foi importado para o MongoDB com os seguintes comandos (utilizando um contentor Docker `mongoEW` já existente):
+```bash
+docker cp ex1/reparacoes_transformed.json mongoEW:/tmp
+docker exec mongoEW mongoimport -d autoRepair -c repairs --file /tmp/reparacoes_transformed.json --jsonArray
+```
+
+A base de dados criada chama-se `autoRepair` e a coleção `repairs`.
+
+## Queries MongoDB
+As queries solicitadas na secção 1.2 foram desenvolvidas e testadas. Encontram-se no ficheiro `ex1/queries.txt`.
+
+## API de Dados
+Foi desenvolvida uma API de dados em Node.js (Express) que corre na porta 16025.
+A API utiliza o `mongoose` para interagir com o MongoDB.
+
+### Instruções de Execução
+Para correr a API de dados localmente:
+1. Entrar na pasta `ex1/api_dados/`.
+2. Instalar as dependências: `npm install`.
+3. Iniciar o servidor: `npm start`.
+
+A API estará disponível em `http://localhost:16025/repairs`.
+
+### Rotas Implementadas
+- `GET /repairs`: lista todos os registos.
+- `GET /repairs/:id`: devolve o registo com o identificador `id`.
+- `GET /repairs?ano=YYYY`: devolve a lista de reparações realizadas no ano `YYYY`.
+- `GET /repairs?marca=VRUM`: devolve a lista de reparações de veículos da marca `VRUM`.
+- `GET /repairs/matrículas`: lista de matrículas (sem repetições e ordenada).
+- `GET /repairs/interv`: lista de intervenções (sem repetições e ordenada por nome).
+- `POST /repairs`: acrescenta um novo registo.
+- `DELETE /repairs/:id`: elimina um registo.
+
+# Exercício 2: Reparações (Interface)
+
+## Descrição
+Foi desenvolvida uma interface web em Node.js (Express e Pug) que corre na porta 16026.
+Esta interface consome exclusivamente a API de dados desenvolvida no Exercício 1.
+
+## Páginas Implementadas
+- **Página Principal**: Lista de reparações com links para os detalhes de cada registo e para as páginas de marca.
+- **Página de Registo**: Exibe todos os campos de uma reparação específica.
+- **Página de Marca**: Exibe o nome da marca, a lista de clientes que possuem veículos dessa marca e a lista de reparações associadas.
+
+## Distribuição (Docker)
+A solução completa pode ser orquestrada via Docker Compose. No diretório raiz, execute:
+```bash
+docker-compose up --build
+```
+
+O `docker-compose.yml` levanta três serviços:
+1. `mongodb`: Base de dados.
+2. `api_dados`: API de dados (Porta 16025).
+3. `interface`: Interface web (Porta 16026).
+
+Nota: Para a primeira execução, os dados devem ser importados para o MongoDB manualmente ou através do script de importação fornecido no Exercício 1.

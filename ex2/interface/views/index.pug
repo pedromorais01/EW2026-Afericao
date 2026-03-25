@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  .w3-card-4
+    header.w3-container.w3-blue
+      h1 Oficina de Reparações - Lista de Registos
+    .w3-container
+      table.w3-table-all
+        tr
+          th ID
+          th Data
+          th Nome
+          th Matrícula
+          th Marca
+          th Intervenções
+        each r in list
+          tr
+            td
+              a(href="/" + r._id)= r._id
+            td= r.data
+            td= r.nome
+            td= r.viatura.matricula
+            td
+              a(href="/marcas/" + r.viatura.marca)= r.viatura.marca
+            td= r.nr_intervencoes
+    footer.w3-container.w3-blue
+      h5 Gerado por Gemini CLI em #{date}

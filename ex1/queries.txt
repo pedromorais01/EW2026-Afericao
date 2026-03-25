@@ -1,0 +1,48 @@
+1. Quantos automóveis foram reparados?
+Query: db.repairs.countDocuments()
+Resposta: 5000
+
+2. Quantos automóveis da marca "Cadillac" foram reparados?
+Query: db.repairs.countDocuments({"viatura.marca": "Cadillac"})
+Resposta: 91
+
+3. Que marcas de automóveis já apareceram na oficina (ordenada alfabeticamente e sem repetições)?
+Query: db.repairs.distinct("viatura.marca").sort()
+Resposta: (Lista de 54 marcas de 'Alfa Romeo' a 'Volvo')
+
+4. Qual a distribuição por tipo de reparação? (por exemplo: quantas mudanças de óleo, quantas mudanças de filtro, ...)
+Query: db.repairs.aggregate([{ $unwind: "$intervencoes" }, { $group: { _id: "$intervencoes.nome", count: { $sum: 1 } } }])
+Resposta:
+  - Substituição de braços de suspensão: 1568
+  - Substituição de amortecedores: 1645
+  - Balanceamento de rodas: 1646
+  - Troca de óleo: 1611
+  - Troca de filtro de ar: 1638
+  - Substituição de molas: 1590
+  - Troca de filtro de combustível: 1595
+  - Ajuste do sistema de freios: 1613
+  - Troca de correia dentada: 1608
+  - Troca de correia de acessórios: 1627
+  - Recarga de gás do sistema de ar condicionado: 1519
+  - Troca de filtro de habitáculo: 1661
+  - Diagnóstico eletrónico: 1597
+  - Substituição de pastilhas de freio: 1635
+  - Substituição de discos de freio: 1620
+  - Alinhamento de rodas: 1554
+  - Reparação de vazamento no sistema de escape: 1651
+  - Serviço de transmissão: 1573
+  - Troca de pneus: 1549
+  - Reparação elétrica: 1590
+
+5. Qual a distribuição do número de clientes por ano?
+Query: db.repairs.aggregate([{ $group: { _id: { $substr: ["$data", 0, 4] }, count: { $sum: 1 } } }])
+Resposta:
+  - 2020: 567
+  - 2022: 577
+  - 2021: 590
+  - 2019: 600
+  - 2016: 586
+  - 2017: 567
+  - 2015: 626
+  - 2018: 572
+  - 2023: 315

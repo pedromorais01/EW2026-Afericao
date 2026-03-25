@@ -1,0 +1,12 @@
+{
+  "name": "api_dados",
+  "version": "1.0.0",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.3.0"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
